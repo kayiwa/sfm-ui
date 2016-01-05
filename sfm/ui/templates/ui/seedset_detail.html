@@ -23,6 +23,10 @@
         <li>date_ended : {{ seedset.date_ended }}</li>
         <li>is_active : {{ seedset.is_active }}</li>
         <li>stats : {{ seedset.stats }}</li>
+        <li>history (of this and child seeds):
+            {% include "ui/history_snippet.html" with log_entries=seedset.log_entries %}
+        </li>
+
     </div>
     </form>
     </h2>

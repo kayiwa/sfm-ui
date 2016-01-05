@@ -5,6 +5,7 @@ from django.contrib import admin as a
 from ui import models as m
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from auditlog.models import LogEntry
 
 from .models import User
 
@@ -97,3 +98,4 @@ a.site.register(m.Collection, Collection)
 a.site.register(m.SeedSet, SeedSet)
 a.site.register(m.Seed, Seed)
 a.site.register(m.Harvest, Harvest)
+a.site.register(LogEntry)

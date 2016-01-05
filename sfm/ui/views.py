@@ -32,6 +32,7 @@ class CollectionUpdateView(UpdateView):
     model = Collection
     form_class = CollectionForm
     template_name = 'ui/collection_update.html'
+    initial={'note': ''}
 
     def get_success_url(self):
         return reverse("collection_detail", args=(self.object.pk,))
@@ -67,6 +68,7 @@ class SeedSetUpdateView(UpdateView):
     model = SeedSet
     form_class = SeedSetForm
     template_name = 'ui/seedset_update.html'
+    initial={'note': ''}
 
     def form_valid(self, form):
         """
@@ -130,6 +132,7 @@ class SeedUpdateView(UpdateView):
     model = Seed
     form_class = SeedForm
     template_name = 'ui/seed_update.html'
+    initial={'note': ''}
 
     def get_success_url(self):
         return reverse("seed_detail", args=(self.object.pk,))

@@ -18,6 +18,9 @@
         <li>is_visible : {{ collection.is_visible }}</li>
         <li>is_active : {{ collection.is_active }}</li>
         <li>stats : {{ collection.stats }}</li>
+        <li>history (of this and child seed sets):
+            {% include "ui/history_snippet.html" with log_entries=collection.log_entries %}
+        </li>
     </div>
     </form>
     </h2>

@@ -1,0 +1,18 @@
+<ul>
+    {% for log_entry in log_entries %}
+        {% if log_entry.action == 0 %}
+            <li>{{ log_entry.object_repr }} created on {{ log_entry.timestamp }}{% if log_entry.actor %} by {{ log_entry.actor }}{% endif %}.{% if "note" in log_entry.changes_dict and log_entry.changes_dict.note.1 %} Note is "{{ log_entry.changes_dict.note.1 }}"{% endif %}</li>
+        {% elif log_entry.action == 1 %}
+            <li>{{ log_entry.object_repr }} updated on {{ log_entry.timestamp }} by {{ log_entry.actor }}.{% if "note" in log_entry.changes_dict and log_entry.changes_dict.note.1 %} Note is {{ log_entry.changes_dict.note.1 }}{% endif %}</li>
+            <ul>
+                {% for key, values in log_entry.changes_dict.iteritems %}
+                    {% if key != "note" %}
+                        <li>{{ key }}: "{{ values.0 }}" changed to "{{ values.1 }}"</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% empty %}
+    <li>No changes yet.</li>
+    {% endfor %}
+</ul>

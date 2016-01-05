@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from auditlog.registry import auditlog
+from auditlog.models import AuditlogHistoryField, LogEntry
 
 
 class User(AbstractUser):
@@ -32,9 +34,15 @@ class Collection(models.Model):
     stats = models.TextField(blank=True)
     date_added = models.DateTimeField(default=timezone.now)
     date_updated = models.DateTimeField(auto_now=True)
+    note = models.TextField(blank=True)
+    history = AuditlogHistoryField()
 
     def __str__(self):
         return '<Collection %s "%s">' % (self.id, self.name)
+
+    def log_entries(self):
+        return (self.history.distinct() | LogEntry.objects.get_for_objects(self.seed_sets.all()).all()).order_by('-timestamp').all()
+
 
 
 @python_2_unicode_compatible
@@ -53,9 +61,14 @@ class SeedSet(models.Model):
     date_added = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
+    note = models.TextField(blank=True)
+    history = AuditlogHistoryField()
 
     def __str__(self):
         return '<SeedSet %s "%s">' % (self.id, self.name)
+
+    def log_entries(self):
+        return (self.history.distinct() | LogEntry.objects.get_for_objects(self.seeds.all()).all()).order_by('-timestamp').all()
 
 
 @python_2_unicode_compatible
@@ -69,9 +82,14 @@ class Seed(models.Model):
     stats = models.TextField(blank=True)
     date_added = models.DateTimeField(default=timezone.now)
     date_updated = models.DateTimeField(auto_now=True)
+    note = models.TextField(blank=True)
+    history = AuditlogHistoryField()
 
     def __str__(self):
         return '<Seed %s "%s">' % (self.id, self.token)
+
+    def log_entries(self):
+        return self.history.all()
 
 
 class Harvest(models.Model):
@@ -88,3 +106,7 @@ class Media(models.Model):
     size = models.PositiveIntegerField(default=0, help_text='Size (bytes)')
     host = models.CharField(max_length=255, blank=True)
     path = models.TextField(blank=True)
+
+auditlog.register(Collection, exclude_fields=["stats", "date_updated", "date_added"])
+auditlog.register(SeedSet, exclude_fields=["stats", "date_updated", "date_added"])
+auditlog.register(Seed, exclude_fields=["stats", "date_updated", "date_added"])

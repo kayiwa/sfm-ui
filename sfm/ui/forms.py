@@ -1,5 +1,7 @@
 from django import forms
 from .models import Collection, SeedSet, Seed, Credential
+import json
+from .widgets import MultiWidgetLayout
 
 
 class CollectionForm(forms.ModelForm):
@@ -67,7 +69,7 @@ class SeedForm(forms.ModelForm):
 
     class Meta:
         model = Seed
-        fields = '__all__'
+        fields = ["seed_set", "token", "uid", "is_active"]
         exclude = []
         widgets = None
         localized_fields = None
@@ -86,6 +88,38 @@ class SeedForm(forms.ModelForm):
 
     def save(self, commit=True):
         return super(SeedForm, self).save(commit)
+
+
+class TwitterFilterWidget(MultiWidgetLayout):
+    # See http://tothinkornottothink.com/post/10815277049/django-forms-i-custom-fields-and-widgets-in
+    def __init__(self, attrs=None):
+            layout = [
+                "<label for='%(id)s'>Follow:</label>", forms.TextInput(),
+                "<label for='%(id)s'>Track:</label>", forms.TextInput()
+            ]
+            super(TwitterFilterWidget, self).__init__(layout, attrs)
+
+    def decompress(self, value):
+        if value:
+            return json.loads(value)
+        else:
+            return ["", ""]
+
+
+class TwitterFilterField(forms.fields.MultiValueField):
+    widget = TwitterFilterWidget
+
+    def __init__(self, *args, **kwargs):
+        list_fields = [forms.fields.CharField(),
+                       forms.fields.CharField()]
+        super(TwitterFilterField, self).__init__(list_fields, *args, **kwargs)
+
+    def compress(self, values):
+        return json.dumps(values)
+
+
+class TwitterFilterForm(SeedForm):
+    token = TwitterFilterField(label="Token")
 
 
 class CredentialForm(forms.ModelForm):

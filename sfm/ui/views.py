@@ -7,7 +7,8 @@ from django.views.generic.list import ListView
 
 from braces.views import LoginRequiredMixin
 
-from .forms import CollectionForm, SeedSetForm, SeedForm, CredentialForm
+from .forms import CollectionForm, SeedSetForm, SeedForm, CredentialForm, TwitterFilterForm
+import forms
 from .models import Collection, SeedSet, Seed, Credential
 from utils import schedule_harvest
 
@@ -133,18 +134,22 @@ class SeedDetailView(DetailView):
 
 class SeedCreateView(CreateView):
     model = Seed
-    form_class = SeedForm
+    form_class = TwitterFilterForm
     template_name = 'ui/seed_create.html'
     success_url = reverse_lazy('seed_list')
 
 
 class SeedUpdateView(UpdateView):
     model = Seed
-    form_class = SeedForm
+    form_class = TwitterFilterForm
     template_name = 'ui/seed_update.html'
 
     def get_success_url(self):
         return reverse("seed_detail", args=(self.object.pk,))
+
+    def get_form_class(self):
+        class_name = "{}Form".format(self.request.GET.get("type", "Seed"))
+        return getattr(forms, class_name)
 
 
 class SeedDeleteView(DeleteView):

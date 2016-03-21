@@ -219,6 +219,48 @@ class CredentialTwitterForm(forms.ModelForm):
         m.save()
         return m
 
+
+class CredentialWeiboForm(forms.ModelForm):
+
+    api_key = forms.CharField()
+    api_secret = forms.CharField()
+    redirect_uri = forms.CharField()
+    access_token = forms.CharField()
+    platform = forms.CharField(widget = forms.HiddenInput(), initial='weibo')
+
+    class Meta:
+        model = Credential
+        fields = '__all__'
+        exclude = ['user', 'is_active']
+        widgets = {
+            'token': forms.HiddenInput(),
+            'date_added': forms.HiddenInput()
+        }
+        localized_fields = None
+        labels = {}
+        help_texts = {}
+        error_messages = {}
+
+    def __init__(self, *args, **kwargs):
+        return super(CredentialWeiboForm, self).__init__(*args, **kwargs)
+
+    def is_valid(self):
+        return super(CredentialWeiboForm, self).is_valid()
+
+    def full_clean(self):
+        return super(CredentialWeiboForm, self).full_clean()
+
+    def save(self, commit=True):
+        m = super(CredentialWeiboForm, self).save(commit=False)
+        m.token = {
+            "api_key": self.cleaned_data["api_key"],
+            "api_secret": self.cleaned_data["api_secret"],
+            "redirect_uri": self.cleaned_data["redirect_uri"],
+            "access_token": self.cleaned_data["access_token"],
+        }
+        m.save()
+        return m
+
 class CredentialForm(forms.ModelForm):
 
     class Meta:

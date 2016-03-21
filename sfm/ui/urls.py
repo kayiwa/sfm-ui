@@ -73,6 +73,10 @@ urlpatterns = patterns('',
                            views.CredentialTwitterCreateView.as_view(),
                            name="credential_twitter_create"),
 
+                       url(r'^credentials/weibo/create/$',
+                           views.CredentialWeiboCreateView.as_view(),
+                           name="credential_weibo_create"),
+
                        url(r'^credentials/flickr/create/$',
                            views.CredentialFlickrCreateView.as_view(),
                            name="credential_flickr_create"),

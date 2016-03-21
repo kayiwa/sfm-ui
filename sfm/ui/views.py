@@ -6,7 +6,7 @@ from django.views.generic.list import ListView
 from braces.views import LoginRequiredMixin
 
 from .forms import CollectionForm, SeedSetForm, SeedForm, CredentialForm
-from .forms import CredentialFlickrForm, CredentialTwitterForm
+from .forms import CredentialFlickrForm, CredentialTwitterForm, CredentialWeiboForm
 from .models import Collection, SeedSet, Seed, Credential
 from .sched import next_run_time
 import logging
@@ -189,6 +189,19 @@ class CredentialTwitterCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super(CredentialTwitterCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("credential_detail", args=(self.object.pk,))
+
+
+class CredentialWeiboCreateView(LoginRequiredMixin, CreateView):
+    model = Credential
+    form_class = CredentialWeiboForm
+    template_name = 'ui/credential_create.html'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(CredentialWeiboCreateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse("credential_detail", args=(self.object.pk,))

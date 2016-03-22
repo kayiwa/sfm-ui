@@ -148,13 +148,13 @@ class SeedSetUpdateView(LoginRequiredMixin, UpdateView):
         return reverse("seedset_detail", args=(self.object.pk,))
 
 
-class SeedSetDeleteView(DeleteView):
+class SeedSetDeleteView(LoginRequiredMixin, DeleteView):
     model = SeedSet
     template_name = 'ui/seedset_delete.html'
     success_url = reverse_lazy('seedset_list')
 
 
-class SeedListView(ListView):
+class SeedListView(LoginRequiredMixin, ListView):
     model = Seed
     template_name = 'ui/seed_list.html'
     paginate_by = 20
@@ -162,7 +162,7 @@ class SeedListView(ListView):
     paginate_orphans = 0
 
 
-class SeedDetailView(DetailView):
+class SeedDetailView(LoginRequiredMixin, DetailView):
     model = Seed
     template_name = 'ui/seed_detail.html'
 
@@ -174,14 +174,34 @@ class SeedDetailView(DetailView):
         return context
 
 
-class SeedCreateView(CreateView):
+class SeedCreateView(LoginRequiredMixin, CreateView):
     model = Seed
     form_class = SeedForm
     template_name = 'ui/seed_create.html'
-    success_url = reverse_lazy('seed_list')
+
+    def get_initial(self):
+        initial = super(SeedCreateView, self).get_initial()
+        initial["seed_set"] = SeedSet.objects.get(
+                                  pk=self.kwargs["seed_set_pk"])
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SeedCreateView, self).get_context_data(**kwargs)
+        context["seed_set"] = SeedSet.objects.get(
+                                  pk=self.kwargs["seed_set_pk"])
+        context["collection"] = context["seed_set"].collection
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(SeedCreateView, self).get_form_kwargs()
+        kwargs["seedset"] = self.kwargs["seed_set_pk"]
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('seed_detail', args=(self.object.pk,))
 
 
-class SeedUpdateView(UpdateView):
+class SeedUpdateView(LoginRequiredMixin, UpdateView):
     model = Seed
     form_class = SeedForm
     template_name = 'ui/seed_update.html'
@@ -191,7 +211,7 @@ class SeedUpdateView(UpdateView):
         return reverse("seed_detail", args=(self.object.pk,))
 
 
-class SeedDeleteView(DeleteView):
+class SeedDeleteView(LoginRequiredMixin, DeleteView):
     model = Seed
     template_name = 'ui/seed_delete.html'
     success_url = reverse_lazy('seed_list')

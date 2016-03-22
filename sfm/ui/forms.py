@@ -138,9 +138,13 @@ class SeedForm(forms.ModelForm):
 
     class Meta:
         model = Seed
-        fields = '__all__'
+        fields = ['seed_set', 'token', 'uid', 'is_active', 'is_valid',
+                  'date_added', 'history_note']
         exclude = []
         widgets = {
+            'seed_set': forms.HiddenInput,
+            'date_added': forms.HiddenInput,
+            'is_active': forms.HiddenInput,
             'history_note': HISTORY_NOTE_WIDGET
         }
         localized_fields = None
@@ -153,6 +157,23 @@ class SeedForm(forms.ModelForm):
         error_messages = {}
 
     def __init__(self, *args, **kwargs):
+        self.seedset = kwargs.pop("seedset", None)
+        super(SeedForm, self).__init__(*args, **kwargs)
+        cancel_url = reverse('seedset_detail', args=[self.seedset])
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Fieldset(
+                '',
+                'token',
+                'history_note'
+                 ),
+            FormActions(
+                Submit('submit', 'Save'),
+                Button('cancel', 'Cancel',
+                       onclick="window.location.href='{0}'".format(cancel_url))
+                )
+            )
+
         return super(SeedForm, self).__init__(*args, **kwargs)
 
     def is_valid(self):
